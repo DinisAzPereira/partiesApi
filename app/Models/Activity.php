@@ -12,7 +12,6 @@ class Activity extends Model
     protected $fillable = [
         'name',
         'type',
-
         'party_id', // Relaciona a atividade a uma festa
 
 

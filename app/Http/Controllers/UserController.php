@@ -25,6 +25,8 @@ class UserController extends Controller
         $user->role()->associate($role);
         $user->save();
 
+        
+
 
         $token = JWTAuth::claims([
             "role" => $user->role
@@ -47,30 +49,34 @@ class UserController extends Controller
     /**
      * Método para iniciar sessão (login).
      */
-    public function login(Request $request)
-    {
-        // Obter credenciais da requisição
-        $credentials = $request->only("email", "password");
+    public function login(RegisterRequest $request) {
 
-        // Tentar autenticar com as credenciais fornecidas
-        if (!($token = JWTAuth::attempt($credentials))) {
-            return response()->json(
-                ["erro" => "Credenciais inválidas."],
-                401
-            );
-        }
+        //tentativa de match de credenciais
+        $login = JWTAuth::attempt([
+            "email" => $request->email,
+            "password" => $request->password
+         ]);
 
-        // Obter o utilizador autenticado
+         // o user e a palavra passe nao correspondem
+        if(!$login) {
+            return response()->json([
+                "error" => "Wrong credencials"
+            ],400);
+         }
+
+         //info de user logados
         $user = auth()->user();
-        $token = JWTAuth::claims(["role" => $user->role])->fromUser($user);
 
-        // Retornar resposta JSON com os dados do utilizador e o token
+        $token = JWTAuth::claims([
+            "mode" => "dark_mode",
+            "role" => "ADMIN"
+        ])->fromUser($user);
+
         return response()->json([
-            "utilizador" => $user,
-            "token" => $token,
+           "token" => $token
         ]);
-    }
 
+    }
 
     // função para obter dados do utilizador 
 
